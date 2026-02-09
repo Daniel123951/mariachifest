@@ -1,0 +1,1199 @@
+<!doctype html>
+<html lang="es" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MariachiFest - Plataforma de Reservas</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+  <style>
+    body { box-sizing: border-box; }
+    .font-display { font-family: 'Playfair Display', serif; }
+    .font-body { font-family: 'Inter', sans-serif; }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes slideIn {
+      from { transform: translateX(-100%); }
+      to { transform: translateX(0); }
+    }
+    
+    .animate-fade { animation: fadeIn 0.4s ease-out forwards; }
+    .animate-slide { animation: slideIn 0.3s ease-out forwards; }
+    
+    .gold-gradient {
+      background: linear-gradient(135deg, #D4AF37 0%, #F4D03F 50%, #D4AF37 100%);
+    }
+    
+    .card-hover {
+      transition: all 0.3s ease;
+    }
+    
+    .card-hover:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    }
+    
+    .nav-item {
+      transition: all 0.2s ease;
+    }
+    
+    .nav-item:hover {
+      background: rgba(212, 175, 55, 0.1);
+    }
+    
+    .nav-item.active {
+      background: linear-gradient(90deg, rgba(212, 175, 55, 0.2) 0%, transparent 100%);
+      border-left: 3px solid #D4AF37;
+    }
+    
+    input[type="checkbox"]:checked {
+      background-color: #D4AF37;
+      border-color: #D4AF37;
+    }
+    
+    .calendar-day:hover {
+      background: rgba(212, 175, 55, 0.2);
+    }
+    
+    .calendar-day.selected {
+      background: #D4AF37;
+      color: #000;
+    }
+    
+    .scrollbar-thin::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    .scrollbar-thin::-webkit-scrollbar-track {
+      background: #1a1a1a;
+    }
+    
+    .scrollbar-thin::-webkit-scrollbar-thumb {
+      background: #D4AF37;
+      border-radius: 3px;
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full font-body bg-gradient-to-br from-gray-950 via-gray-900 to-black text-white overflow-auto">
+  <div id="app" class="h-full w-full"><!-- Navigation Header -->
+   <header class="fixed top-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-md border-b border-gray-800">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+     <div class="flex items-center gap-3">
+      <div class="w-10 h-10 gold-gradient rounded-full flex items-center justify-center">
+       <svg class="w-6 h-6 text-black" fill="currentColor" viewbox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
+       </svg>
+      </div>
+      <div>
+       <h1 id="platform-name" class="font-display text-xl font-bold text-white">MariachiFest</h1>
+       <p id="tagline" class="text-xs text-gray-400">La música de México a tu puerta</p>
+      </div>
+     </div><!-- User Type Selector -->
+     <div class="flex items-center gap-2 bg-gray-800/50 rounded-full p-1"><button onclick="switchUserType('client')" id="btn-client" class="px-4 py-2 rounded-full text-sm font-medium transition-all bg-gradient-to-r from-red-700 to-red-600 text-white"> Cliente </button> <button onclick="switchUserType('admin')" id="btn-admin" class="px-4 py-2 rounded-full text-sm font-medium transition-all text-gray-400 hover:text-white"> Admin </button> <button onclick="switchUserType('group')" id="btn-group" class="px-4 py-2 rounded-full text-sm font-medium transition-all text-gray-400 hover:text-white"> Grupo </button>
+     </div>
+    </div>
+   </header><!-- Main Content Area -->
+   <main class="pt-20 pb-8 px-4 min-h-full"><!-- ==================== CLIENT SCREENS ==================== --> <!-- Screen 1: Group Selection -->
+    <section id="screen-groups" class="max-w-6xl mx-auto animate-fade">
+     <div class="mb-8">
+      <h2 class="font-display text-3xl md:text-4xl font-bold mb-2">Elige tu Grupo Musical</h2>
+      <p class="text-gray-400">Selecciona el mariachi o retreta perfecto para tu evento</p>
+     </div><!-- Filters -->
+     <div class="flex flex-wrap gap-3 mb-6"><button class="px-4 py-2 rounded-full bg-gradient-to-r from-red-700 to-red-600 text-white text-sm font-medium">Todos</button> <button class="px-4 py-2 rounded-full bg-gray-800 text-gray-300 text-sm font-medium hover:bg-gray-700">🎺 Mariachi</button> <button class="px-4 py-2 rounded-full bg-gray-800 text-gray-300 text-sm font-medium hover:bg-gray-700">🥁 Retreta</button>
+     </div><!-- Groups Grid -->
+     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"><!-- Group Card 1 -->
+      <div class="card-hover bg-gradient-to-br from-gray-800/80 to-gray-900/80 rounded-2xl overflow-hidden border border-gray-700/50">
+       <div class="h-48 bg-gradient-to-br from-red-900/50 to-red-800/30 flex items-center justify-center relative">
+        <div class="absolute top-3 right-3 px-3 py-1 rounded-full bg-black/50 backdrop-blur text-xs font-medium text-yellow-400">
+         ⭐ 4.9
+        </div>
+        <svg class="w-24 h-24 text-yellow-500/30" fill="currentColor" viewbox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
+        </svg>
+       </div>
+       <div class="p-5">
+        <div class="flex items-start justify-between mb-3">
+         <div>
+          <h3 class="font-display text-xl font-bold">Mariachi Sol de México</h3>
+          <p class="text-gray-400 text-sm">📍 Ciudad de México</p>
+         </div><span class="px-3 py-1 rounded-full bg-red-900/50 text-red-300 text-xs font-medium">Mariachi</span>
+        </div>
+        <p class="text-gray-500 text-sm mb-4">8 integrantes • Trajes de gala • +200 eventos</p><button onclick="selectGroup('Mariachi Sol de México')" class="w-full py-3 rounded-xl gold-gradient text-black font-semibold hover:opacity-90 transition-opacity"> Elegir grupo </button>
+       </div>
+      </div><!-- Group Card 2 -->
+      <div class="card-hover bg-gradient-to-br from-gray-800/80 to-gray-900/80 rounded-2xl overflow-hidden border border-gray-700/50">
+       <div class="h-48 bg-gradient-to-br from-blue-900/50 to-blue-800/30 flex items-center justify-center relative">
+        <div class="absolute top-3 right-3 px-3 py-1 rounded-full bg-black/50 backdrop-blur text-xs font-medium text-yellow-400">
+         ⭐ 4.8
+        </div>
+        <svg class="w-24 h-24 text-blue-400/30" fill="currentColor" viewbox="0 0 24 24"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" />
+        </svg>
+       </div>
+       <div class="p-5">
+        <div class="flex items-start justify-between mb-3">
+         <div>
+          <h3 class="font-display text-xl font-bold">Retreta Municipal</h3>
+          <p class="text-gray-400 text-sm">📍 Guadalajara</p>
+         </div><span class="px-3 py-1 rounded-full bg-blue-900/50 text-blue-300 text-xs font-medium">Retreta</span>
+        </div>
+        <p class="text-gray-500 text-sm mb-4">12 integrantes • Uniformes oficiales • +150 eventos</p><button onclick="selectGroup('Retreta Municipal')" class="w-full py-3 rounded-xl gold-gradient text-black font-semibold hover:opacity-90 transition-opacity"> Elegir grupo </button>
+       </div>
+      </div><!-- Group Card 3 -->
+      <div class="card-hover bg-gradient-to-br from-gray-800/80 to-gray-900/80 rounded-2xl overflow-hidden border border-gray-700/50">
+       <div class="h-48 bg-gradient-to-br from-purple-900/50 to-purple-800/30 flex items-center justify-center relative">
+        <div class="absolute top-3 right-3 px-3 py-1 rounded-full bg-black/50 backdrop-blur text-xs font-medium text-yellow-400">
+         ⭐ 5.0
+        </div>
+        <svg class="w-24 h-24 text-purple-400/30" fill="currentColor" viewbox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
+        </svg>
+       </div>
+       <div class="p-5">
+        <div class="flex items-start justify-between mb-3">
+         <div>
+          <h3 class="font-display text-xl font-bold">Los Reyes del Son</h3>
+          <p class="text-gray-400 text-sm">📍 Monterrey</p>
+         </div><span class="px-3 py-1 rounded-full bg-red-900/50 text-red-300 text-xs font-medium">Mariachi</span>
+        </div>
+        <p class="text-gray-500 text-sm mb-4">10 integrantes • Premium • +300 eventos</p><button onclick="selectGroup('Los Reyes del Son')" class="w-full py-3 rounded-xl gold-gradient text-black font-semibold hover:opacity-90 transition-opacity"> Elegir grupo </button>
+       </div>
+      </div>
+     </div>
+    </section><!-- Screen 2: Package Selection -->
+    <section id="screen-packages" class="max-w-5xl mx-auto animate-fade hidden"><button onclick="goBack('screen-groups')" class="flex items-center gap-2 text-gray-400 hover:text-white mb-6 transition-colors">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg> Volver a grupos </button>
+     <div class="mb-8">
+      <h2 class="font-display text-3xl md:text-4xl font-bold mb-2">Selecciona tu Paquete</h2>
+      <p class="text-gray-400">Grupo seleccionado: <span id="selected-group-name" class="text-yellow-400 font-medium">Mariachi Sol de México</span></p>
+     </div>
+     <div class="grid grid-cols-1 md:grid-cols-3 gap-6"><!-- Package 1 - Basic -->
+      <div class="card-hover bg-gradient-to-br from-gray-800/80 to-gray-900/80 rounded-2xl p-6 border border-gray-700/50 relative">
+       <div class="mb-4"><span class="text-gray-400 text-sm uppercase tracking-wider">Básico</span>
+        <h3 class="font-display text-2xl font-bold mt-1">Serenata Express</h3>
+       </div>
+       <div class="mb-6"><span class="text-4xl font-bold text-white">$2,500</span> <span class="text-gray-400"> MXN</span>
+       </div>
+       <ul class="space-y-3 mb-6">
+        <li class="flex items-center gap-3 text-gray-300">
+         <svg class="w-5 h-5 text-yellow-500" fill="currentColor" viewbox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+         </svg> 30 minutos</li>
+        <li class="flex items-center gap-3 text-gray-300">
+         <svg class="w-5 h-5 text-yellow-500" fill="currentColor" viewbox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+         </svg> 5 canciones</li>
+        <li class="flex items-center gap-3 text-gray-300">
+         <svg class="w-5 h-5 text-yellow-500" fill="currentColor" viewbox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+         </svg> 6 integrantes</li>
+       </ul><button onclick="selectPackage('basico', 5)" class="w-full py-3 rounded-xl bg-gray-700 text-white font-semibold hover:bg-gray-600 transition-colors"> Seleccionar paquete </button>
+      </div><!-- Package 2 - Standard (Popular) -->
+      <div class="card-hover bg-gradient-to-br from-gray-800/80 to-gray-900/80 rounded-2xl p-6 border-2 border-yellow-500/50 relative">
+       <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 gold-gradient rounded-full text-black text-xs font-bold">
+        MÁS POPULAR
+       </div>
+       <div class="mb-4"><span class="text-gray-400 text-sm uppercase tracking-wider">Estándar</span>
+        <h3 class="font-display text-2xl font-bold mt-1">Serenata Clásica</h3>
+       </div>
+       <div class="mb-6"><span class="text-4xl font-bold text-yellow-400">$4,500</span> <span class="text-gray-400"> MXN</span>
+       </div>
+       <ul class="space-y-3 mb-6">
+        <li class="flex items-center gap-3 text-gray-300">
+         <svg class="w-5 h-5 text-yellow-500" fill="currentColor" viewbox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+         </svg> 1 hora</li>
+        <li class="flex items-center gap-3 text-gray-300">
+         <svg class="w-5 h-5 text-yellow-500" fill="currentColor" viewbox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+         </svg> 10 canciones</li>
+        <li class="flex items-center gap-3 text-gray-300">
+         <svg class="w-5 h-5 text-yellow-500" fill="currentColor" viewbox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+         </svg> 8 integrantes</li>
+       </ul><button onclick="selectPackage('estandar', 10)" class="w-full py-3 rounded-xl gold-gradient text-black font-semibold hover:opacity-90 transition-opacity"> Seleccionar paquete </button>
+      </div><!-- Package 3 - Premium -->
+      <div class="card-hover bg-gradient-to-br from-gray-800/80 to-gray-900/80 rounded-2xl p-6 border border-gray-700/50 relative">
+       <div class="mb-4"><span class="text-gray-400 text-sm uppercase tracking-wider">Premium</span>
+        <h3 class="font-display text-2xl font-bold mt-1">Gran Serenata</h3>
+       </div>
+       <div class="mb-6"><span class="text-4xl font-bold text-white">$7,500</span> <span class="text-gray-400"> MXN</span>
+       </div>
+       <ul class="space-y-3 mb-6">
+        <li class="flex items-center gap-3 text-gray-300">
+         <svg class="w-5 h-5 text-yellow-500" fill="currentColor" viewbox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+         </svg> 2 horas</li>
+        <li class="flex items-center gap-3 text-gray-300">
+         <svg class="w-5 h-5 text-yellow-500" fill="currentColor" viewbox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+         </svg> 20 canciones</li>
+        <li class="flex items-center gap-3 text-gray-300">
+         <svg class="w-5 h-5 text-yellow-500" fill="currentColor" viewbox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+         </svg> 10 integrantes</li>
+       </ul><button onclick="selectPackage('premium', 20)" class="w-full py-3 rounded-xl bg-gray-700 text-white font-semibold hover:bg-gray-600 transition-colors"> Seleccionar paquete </button>
+      </div>
+     </div>
+    </section><!-- Screen 3: Date & Time Selection -->
+    <section id="screen-datetime" class="max-w-4xl mx-auto animate-fade hidden"><button onclick="goBack('screen-packages')" class="flex items-center gap-2 text-gray-400 hover:text-white mb-6 transition-colors">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg> Volver a paquetes </button>
+     <div class="mb-8">
+      <h2 class="font-display text-3xl md:text-4xl font-bold mb-2">Fecha y Hora</h2>
+      <p class="text-gray-400">Selecciona cuándo quieres tu serenata</p>
+     </div>
+     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8"><!-- Calendar -->
+      <div class="bg-gradient-to-br from-gray-800/80 to-gray-900/80 rounded-2xl p-6 border border-gray-700/50">
+       <div class="flex items-center justify-between mb-6"><button onclick="changeMonth(-1)" class="p-2 rounded-lg hover:bg-gray-700 transition-colors">
+         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+         </svg></button>
+        <h3 id="calendar-month" class="font-display text-xl font-bold">Enero 2025</h3><button onclick="changeMonth(1)" class="p-2 rounded-lg hover:bg-gray-700 transition-colors">
+         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+         </svg></button>
+       </div>
+       <div class="grid grid-cols-7 gap-1 mb-2"><span class="text-center text-gray-500 text-sm py-2">Dom</span> <span class="text-center text-gray-500 text-sm py-2">Lun</span> <span class="text-center text-gray-500 text-sm py-2">Mar</span> <span class="text-center text-gray-500 text-sm py-2">Mié</span> <span class="text-center text-gray-500 text-sm py-2">Jue</span> <span class="text-center text-gray-500 text-sm py-2">Vie</span> <span class="text-center text-gray-500 text-sm py-2">Sáb</span>
+       </div>
+       <div id="calendar-days" class="grid grid-cols-7 gap-1"><!-- Calendar days will be generated by JS -->
+       </div>
+      </div><!-- Time Selection -->
+      <div class="bg-gradient-to-br from-gray-800/80 to-gray-900/80 rounded-2xl p-6 border border-gray-700/50">
+       <h3 class="font-display text-xl font-bold mb-6">Selecciona la hora</h3>
+       <div class="grid grid-cols-3 gap-3 mb-6"><button onclick="selectTime('18:00')" class="time-btn py-3 rounded-xl bg-gray-700 text-white font-medium hover:bg-gray-600 transition-colors">18:00</button> <button onclick="selectTime('19:00')" class="time-btn py-3 rounded-xl bg-gray-700 text-white font-medium hover:bg-gray-600 transition-colors">19:00</button> <button onclick="selectTime('20:00')" class="time-btn py-3 rounded-xl bg-gray-700 text-white font-medium hover:bg-gray-600 transition-colors">20:00</button> <button onclick="selectTime('21:00')" class="time-btn py-3 rounded-xl bg-gray-700 text-white font-medium hover:bg-gray-600 transition-colors">21:00</button> <button onclick="selectTime('22:00')" class="time-btn py-3 rounded-xl bg-gray-700 text-white font-medium hover:bg-gray-600 transition-colors">22:00</button> <button onclick="selectTime('23:00')" class="time-btn py-3 rounded-xl bg-gray-700 text-white font-medium hover:bg-gray-600 transition-colors">23:00</button>
+       </div>
+       <div class="p-4 rounded-xl bg-gray-900/50 border border-gray-700 mb-6">
+        <p class="text-gray-400 text-sm mb-1">Tu reserva:</p>
+        <p id="selected-datetime" class="text-lg font-medium text-yellow-400">Selecciona fecha y hora</p>
+       </div><button onclick="goToScreen('screen-songs')" class="w-full py-4 rounded-xl gold-gradient text-black font-semibold hover:opacity-90 transition-opacity"> Continuar </button>
+      </div>
+     </div>
+    </section><!-- Screen 4: Song Selection -->
+    <section id="screen-songs" class="max-w-4xl mx-auto animate-fade hidden"><button onclick="goBack('screen-datetime')" class="flex items-center gap-2 text-gray-400 hover:text-white mb-6 transition-colors">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg> Volver a fecha </button>
+     <div class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div>
+       <h2 class="font-display text-3xl md:text-4xl font-bold mb-2">Selecciona tus Canciones</h2>
+       <p class="text-gray-400">Elige las canciones para tu serenata</p>
+      </div>
+      <div class="px-6 py-3 rounded-xl bg-gradient-to-r from-red-900/50 to-red-800/30 border border-red-700/50">
+       <p class="text-sm text-gray-400">Canciones seleccionadas</p>
+       <p class="text-2xl font-bold"><span id="song-count">0</span> / <span id="max-songs">10</span></p>
+      </div>
+     </div>
+     <div class="bg-gradient-to-br from-gray-800/80 to-gray-900/80 rounded-2xl border border-gray-700/50 overflow-hidden"><!-- Search -->
+      <div class="p-4 border-b border-gray-700/50">
+       <div class="relative">
+        <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg><input type="text" placeholder="Buscar canción..." class="w-full pl-12 pr-4 py-3 rounded-xl bg-gray-900 border border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 transition-colors">
+       </div>
+      </div><!-- Song List -->
+      <div class="max-h-96 overflow-y-auto scrollbar-thin">
+       <div id="song-list" class="divide-y divide-gray-700/50"><!-- Songs will be rendered by JS -->
+       </div>
+      </div>
+     </div><button onclick="goToScreen('screen-payment')" class="w-full mt-6 py-4 rounded-xl gold-gradient text-black font-semibold hover:opacity-90 transition-opacity"> Confirmar repertorio </button>
+    </section><!-- Screen 5: Payment Details -->
+    <section id="screen-payment" class="max-w-2xl mx-auto animate-fade hidden"><button onclick="goBack('screen-songs')" class="flex items-center gap-2 text-gray-400 hover:text-white mb-6 transition-colors">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg> Volver a canciones </button>
+     <div class="mb-8">
+      <h2 class="font-display text-3xl md:text-4xl font-bold mb-2">Datos de Pago</h2>
+      <p class="text-gray-400">Realiza la transferencia para confirmar tu reserva</p>
+     </div>
+     <div class="bg-gradient-to-br from-gray-800/80 to-gray-900/80 rounded-2xl p-6 md:p-8 border border-gray-700/50 mb-6"><!-- Amount -->
+      <div class="text-center mb-8 pb-8 border-b border-gray-700">
+       <p class="text-gray-400 mb-2">Monto a pagar</p>
+       <p class="text-5xl font-bold text-yellow-400">$4,500 <span class="text-xl text-gray-400">MXN</span></p>
+      </div><!-- Bank Details -->
+      <div class="space-y-4">
+       <div class="flex items-center justify-between p-4 rounded-xl bg-gray-900/50">
+        <div>
+         <p class="text-gray-400 text-sm">Banco</p>
+         <p class="text-lg font-medium">BBVA México</p>
+        </div><button class="p-2 rounded-lg hover:bg-gray-700 transition-colors" onclick="copyToClipboard('BBVA México')">
+         <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+         </svg></button>
+       </div>
+       <div class="flex items-center justify-between p-4 rounded-xl bg-gray-900/50">
+        <div>
+         <p class="text-gray-400 text-sm">Número de cuenta</p>
+         <p class="text-lg font-medium font-mono">0123 4567 8901 2345</p>
+        </div><button class="p-2 rounded-lg hover:bg-gray-700 transition-colors" onclick="copyToClipboard('0123456789012345')">
+         <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+         </svg></button>
+       </div>
+       <div class="flex items-center justify-between p-4 rounded-xl bg-gray-900/50">
+        <div>
+         <p class="text-gray-400 text-sm">CLABE</p>
+         <p class="text-lg font-medium font-mono">012 345 6789012345 67</p>
+        </div><button class="p-2 rounded-lg hover:bg-gray-700 transition-colors" onclick="copyToClipboard('012345678901234567')">
+         <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+         </svg></button>
+       </div>
+       <div class="flex items-center justify-between p-4 rounded-xl bg-gray-900/50">
+        <div>
+         <p class="text-gray-400 text-sm">Titular</p>
+         <p class="text-lg font-medium">MariachiFest S.A. de C.V.</p>
+        </div><button class="p-2 rounded-lg hover:bg-gray-700 transition-colors" onclick="copyToClipboard('MariachiFest S.A. de C.V.')">
+         <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+         </svg></button>
+       </div>
+      </div>
+     </div><!-- Warning Message -->
+     <div class="p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/30 mb-6">
+      <div class="flex items-start gap-3">
+       <svg class="w-6 h-6 text-yellow-500 flex-shrink-0 mt-0.5" fill="currentColor" viewbox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+       </svg>
+       <p class="text-yellow-200 text-sm">La reserva se confirma <strong>solo después de verificar el pago</strong>. Recibirás un correo de confirmación en las próximas 24 horas.</p>
+      </div>
+     </div><button onclick="goToScreen('screen-upload')" class="w-full py-4 rounded-xl gold-gradient text-black font-semibold hover:opacity-90 transition-opacity"> Ya realicé el pago </button>
+    </section><!-- Screen 6: Upload Receipt -->
+    <section id="screen-upload" class="max-w-2xl mx-auto animate-fade hidden"><button onclick="goBack('screen-payment')" class="flex items-center gap-2 text-gray-400 hover:text-white mb-6 transition-colors">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg> Volver a datos de pago </button>
+     <div class="mb-8">
+      <h2 class="font-display text-3xl md:text-4xl font-bold mb-2">Subir Comprobante</h2>
+      <p class="text-gray-400">Sube tu comprobante de pago para verificar la transacción</p>
+     </div><!-- Status Badge -->
+     <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-yellow-500/20 border border-yellow-500/30 mb-6"><span class="w-2 h-2 rounded-full bg-yellow-500 animate-pulse"></span> <span class="text-yellow-400 font-medium">Pago pendiente de verificación</span>
+     </div>
+     <div class="bg-gradient-to-br from-gray-800/80 to-gray-900/80 rounded-2xl p-6 md:p-8 border border-gray-700/50 mb-6"><!-- Upload Area -->
+      <div id="upload-area" class="border-2 border-dashed border-gray-600 rounded-xl p-8 text-center cursor-pointer hover:border-yellow-500 transition-colors" onclick="document.getElementById('file-input').click()"><input type="file" id="file-input" class="hidden" accept="image/*,.pdf" onchange="handleFileUpload(event)">
+       <div id="upload-placeholder">
+        <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-700 flex items-center justify-center">
+         <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+         </svg>
+        </div>
+        <p class="text-lg font-medium mb-2">Sube tu comprobante de pago</p>
+        <p class="text-gray-400 text-sm mb-4">Arrastra tu archivo aquí o haz clic para seleccionar</p>
+        <p class="text-gray-500 text-xs">Formatos aceptados: JPG, PNG, PDF (máx. 10MB)</p>
+       </div>
+       <div id="upload-preview" class="hidden">
+        <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-green-500/20 flex items-center justify-center">
+         <svg class="w-8 h-8 text-green-500" fill="currentColor" viewbox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+         </svg>
+        </div>
+        <p id="file-name" class="text-lg font-medium mb-2">archivo.jpg</p>
+        <p class="text-gray-400 text-sm">Archivo listo para enviar</p>
+       </div>
+      </div>
+     </div><button onclick="submitReservation()" class="w-full py-4 rounded-xl gold-gradient text-black font-semibold hover:opacity-90 transition-opacity"> Enviar comprobante </button>
+    </section><!-- Screen: Reservation Success -->
+    <section id="screen-success" class="max-w-2xl mx-auto animate-fade hidden">
+     <div class="text-center py-12">
+      <div class="w-24 h-24 mx-auto mb-6 rounded-full gold-gradient flex items-center justify-center">
+       <svg class="w-12 h-12 text-black" fill="currentColor" viewbox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+       </svg>
+      </div>
+      <h2 class="font-display text-3xl md:text-4xl font-bold mb-4">¡Reserva Enviada!</h2>
+      <p class="text-gray-400 mb-8 max-w-md mx-auto">Tu comprobante ha sido recibido. Te notificaremos por correo cuando tu pago sea verificado.</p>
+      <div class="bg-gradient-to-br from-gray-800/80 to-gray-900/80 rounded-2xl p-6 border border-gray-700/50 text-left mb-8">
+       <h3 class="font-display text-xl font-bold mb-4">Resumen de tu reserva</h3>
+       <div class="space-y-3">
+        <div class="flex justify-between"><span class="text-gray-400">Grupo:</span> <span class="font-medium" id="summary-group">Mariachi Sol de México</span>
+        </div>
+        <div class="flex justify-between"><span class="text-gray-400">Fecha:</span> <span class="font-medium" id="summary-date">15 de Enero, 2025</span>
+        </div>
+        <div class="flex justify-between"><span class="text-gray-400">Hora:</span> <span class="font-medium" id="summary-time">20:00</span>
+        </div>
+        <div class="flex justify-between"><span class="text-gray-400">Total:</span> <span class="font-medium text-yellow-400">$4,500 MXN</span>
+        </div>
+       </div>
+      </div><button onclick="resetBooking()" class="px-8 py-3 rounded-xl bg-gray-700 text-white font-semibold hover:bg-gray-600 transition-colors"> Nueva reserva </button>
+     </div>
+    </section><!-- ==================== ADMIN SCREENS ==================== --> <!-- Admin Layout Wrapper -->
+    <div id="admin-layout" class="hidden">
+     <div class="flex flex-col lg:flex-row gap-6 max-w-7xl mx-auto"><!-- Admin Sidebar -->
+      <aside class="lg:w-64 flex-shrink-0">
+       <div class="bg-gradient-to-br from-gray-800/80 to-gray-900/80 rounded-2xl border border-gray-700/50 overflow-hidden lg:sticky lg:top-24">
+        <div class="p-4 border-b border-gray-700">
+         <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-gradient-to-br from-red-600 to-red-700 flex items-center justify-center"><span class="text-white font-bold">A</span>
+          </div>
+          <div>
+           <p class="font-medium">Administrador</p>
+           <p class="text-xs text-gray-400">Panel de control</p>
+          </div>
+         </div>
+        </div>
+        <nav class="p-2"><button onclick="showAdminScreen('admin-dashboard')" class="nav-item active w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left" data-nav="admin-dashboard">
+          <svg class="w-5 h-5 text-yellow-500" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+          </svg> Dashboard </button> <button onclick="showAdminScreen('admin-groups')" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left" data-nav="admin-groups">
+          <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg> Grupos </button> <button onclick="showAdminScreen('admin-payments')" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left" data-nav="admin-payments">
+          <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+          </svg> Pagos <span class="ml-auto px-2 py-0.5 rounded-full bg-red-500 text-xs">3</span> </button> <button onclick="showAdminScreen('admin-agenda')" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left" data-nav="admin-agenda">
+          <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg> Agenda </button>
+        </nav>
+       </div>
+      </aside><!-- Admin Content Area -->
+      <div class="flex-1 min-w-0"><!-- Screen 7: Admin Dashboard -->
+       <div id="admin-dashboard" class="animate-fade">
+        <div class="mb-8">
+         <h2 class="font-display text-3xl font-bold mb-2">Dashboard</h2>
+         <p class="text-gray-400">Resumen de actividad del día</p>
+        </div><!-- Stats Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+         <div class="bg-gradient-to-br from-blue-900/30 to-blue-800/20 rounded-xl p-5 border border-blue-700/30">
+          <div class="flex items-center justify-between mb-3"><span class="text-blue-400 text-sm">Reservas hoy</span>
+           <div class="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
+            <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+           </div>
+          </div>
+          <p class="text-3xl font-bold">12</p>
+         </div>
+         <div class="bg-gradient-to-br from-yellow-900/30 to-yellow-800/20 rounded-xl p-5 border border-yellow-700/30">
+          <div class="flex items-center justify-between mb-3"><span class="text-yellow-400 text-sm">Pagos pendientes</span>
+           <div class="w-8 h-8 rounded-lg bg-yellow-500/20 flex items-center justify-center">
+            <svg class="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+           </div>
+          </div>
+          <p class="text-3xl font-bold">3</p>
+         </div>
+         <div class="bg-gradient-to-br from-green-900/30 to-green-800/20 rounded-xl p-5 border border-green-700/30">
+          <div class="flex items-center justify-between mb-3"><span class="text-green-400 text-sm">Eventos confirmados</span>
+           <div class="w-8 h-8 rounded-lg bg-green-500/20 flex items-center justify-center">
+            <svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+           </div>
+          </div>
+          <p class="text-3xl font-bold">8</p>
+         </div>
+         <div class="bg-gradient-to-br from-purple-900/30 to-purple-800/20 rounded-xl p-5 border border-purple-700/30">
+          <div class="flex items-center justify-between mb-3"><span class="text-purple-400 text-sm">Ingresos del mes</span>
+           <div class="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center">
+            <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+           </div>
+          </div>
+          <p class="text-3xl font-bold">$156K</p>
+         </div>
+        </div><!-- Recent Activity -->
+        <div class="bg-gradient-to-br from-gray-800/80 to-gray-900/80 rounded-2xl border border-gray-700/50 overflow-hidden">
+         <div class="p-4 border-b border-gray-700">
+          <h3 class="font-display text-lg font-bold">Actividad Reciente</h3>
+         </div>
+         <div class="divide-y divide-gray-700/50">
+          <div class="p-4 flex items-center gap-4">
+           <div class="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5 text-green-500" fill="currentColor" viewbox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+            </svg>
+           </div>
+           <div class="flex-1 min-w-0">
+            <p class="font-medium truncate">Pago verificado - María García</p>
+            <p class="text-sm text-gray-400">Mariachi Sol de México • $4,500</p>
+           </div><span class="text-xs text-gray-500">Hace 5 min</span>
+          </div>
+          <div class="p-4 flex items-center gap-4">
+           <div class="w-10 h-10 rounded-full bg-yellow-500/20 flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5 text-yellow-500" fill="currentColor" viewbox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+            </svg>
+           </div>
+           <div class="flex-1 min-w-0">
+            <p class="font-medium truncate">Nueva reserva pendiente - Juan Pérez</p>
+            <p class="text-sm text-gray-400">Los Reyes del Son • $7,500</p>
+           </div><span class="text-xs text-gray-500">Hace 15 min</span>
+          </div>
+          <div class="p-4 flex items-center gap-4">
+           <div class="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5 text-blue-500" fill="currentColor" viewbox="0 0 20 20"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+            </svg>
+           </div>
+           <div class="flex-1 min-w-0">
+            <p class="font-medium truncate">Nuevo grupo registrado</p>
+            <p class="text-sm text-gray-400">Mariachi Azteca • Puebla</p>
+           </div><span class="text-xs text-gray-500">Hace 1 hora</span>
+          </div>
+         </div>
+        </div>
+       </div><!-- Screen 8: Admin Groups Management -->
+       <div id="admin-groups" class="animate-fade hidden">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+         <div>
+          <h2 class="font-display text-3xl font-bold mb-2">Gestión de Grupos</h2>
+          <p class="text-gray-400">Administra los grupos musicales registrados</p>
+         </div><button class="px-6 py-3 rounded-xl gold-gradient text-black font-semibold hover:opacity-90 transition-opacity flex items-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg> Agregar grupo </button>
+        </div>
+        <div class="bg-gradient-to-br from-gray-800/80 to-gray-900/80 rounded-2xl border border-gray-700/50 overflow-hidden">
+         <div class="overflow-x-auto">
+          <table class="w-full">
+           <thead>
+            <tr class="border-b border-gray-700">
+             <th class="text-left p-4 text-gray-400 font-medium">Grupo</th>
+             <th class="text-left p-4 text-gray-400 font-medium">Tipo</th>
+             <th class="text-left p-4 text-gray-400 font-medium">Ciudad</th>
+             <th class="text-left p-4 text-gray-400 font-medium">Estado</th>
+             <th class="text-right p-4 text-gray-400 font-medium">Acciones</th>
+            </tr>
+           </thead>
+           <tbody class="divide-y divide-gray-700/50">
+            <tr class="hover:bg-gray-800/50 transition-colors">
+             <td class="p-4">
+              <div class="flex items-center gap-3">
+               <div class="w-10 h-10 rounded-full bg-red-900/50 flex items-center justify-center"><span class="text-red-300">🎺</span>
+               </div><span class="font-medium">Mariachi Sol de México</span>
+              </div></td>
+             <td class="p-4"><span class="px-3 py-1 rounded-full bg-red-900/30 text-red-300 text-xs">Mariachi</span></td>
+             <td class="p-4 text-gray-400">Ciudad de México</td>
+             <td class="p-4"><span class="px-3 py-1 rounded-full bg-green-500/20 text-green-400 text-xs">Activo</span></td>
+             <td class="p-4 text-right"><button class="px-4 py-2 rounded-lg bg-gray-700 text-white text-sm hover:bg-gray-600 transition-colors">Editar grupo</button></td>
+            </tr>
+            <tr class="hover:bg-gray-800/50 transition-colors">
+             <td class="p-4">
+              <div class="flex items-center gap-3">
+               <div class="w-10 h-10 rounded-full bg-blue-900/50 flex items-center justify-center"><span class="text-blue-300">🥁</span>
+               </div><span class="font-medium">Retreta Municipal</span>
+              </div></td>
+             <td class="p-4"><span class="px-3 py-1 rounded-full bg-blue-900/30 text-blue-300 text-xs">Retreta</span></td>
+             <td class="p-4 text-gray-400">Guadalajara</td>
+             <td class="p-4"><span class="px-3 py-1 rounded-full bg-green-500/20 text-green-400 text-xs">Activo</span></td>
+             <td class="p-4 text-right"><button class="px-4 py-2 rounded-lg bg-gray-700 text-white text-sm hover:bg-gray-600 transition-colors">Editar grupo</button></td>
+            </tr>
+            <tr class="hover:bg-gray-800/50 transition-colors">
+             <td class="p-4">
+              <div class="flex items-center gap-3">
+               <div class="w-10 h-10 rounded-full bg-purple-900/50 flex items-center justify-center"><span class="text-purple-300">🎺</span>
+               </div><span class="font-medium">Los Reyes del Son</span>
+              </div></td>
+             <td class="p-4"><span class="px-3 py-1 rounded-full bg-red-900/30 text-red-300 text-xs">Mariachi</span></td>
+             <td class="p-4 text-gray-400">Monterrey</td>
+             <td class="p-4"><span class="px-3 py-1 rounded-full bg-green-500/20 text-green-400 text-xs">Activo</span></td>
+             <td class="p-4 text-right"><button class="px-4 py-2 rounded-lg bg-gray-700 text-white text-sm hover:bg-gray-600 transition-colors">Editar grupo</button></td>
+            </tr>
+           </tbody>
+          </table>
+         </div>
+        </div>
+       </div><!-- Screen 9: Admin Payment Verification -->
+       <div id="admin-payments" class="animate-fade hidden">
+        <div class="mb-8">
+         <h2 class="font-display text-3xl font-bold mb-2">Verificación de Pagos</h2>
+         <p class="text-gray-400">Revisa y verifica los comprobantes de pago pendientes</p>
+        </div>
+        <div class="space-y-4"><!-- Payment Card 1 -->
+         <div class="bg-gradient-to-br from-gray-800/80 to-gray-900/80 rounded-2xl p-6 border border-gray-700/50">
+          <div class="flex flex-col lg:flex-row lg:items-center gap-4">
+           <div class="flex-1">
+            <div class="flex items-center gap-3 mb-2"><span class="px-3 py-1 rounded-full bg-yellow-500/20 text-yellow-400 text-xs font-medium">Pendiente</span> <span class="text-gray-500 text-sm">Hace 2 horas</span>
+            </div>
+            <h3 class="font-display text-xl font-bold mb-1">María García López</h3>
+            <p class="text-gray-400 mb-2">Mariachi Sol de México • 15 Ene, 20:00</p>
+            <p class="text-2xl font-bold text-yellow-400">$4,500 <span class="text-sm text-gray-400">MXN</span></p>
+           </div>
+           <div class="flex flex-wrap gap-2"><button class="px-4 py-2 rounded-lg bg-gray-700 text-white text-sm hover:bg-gray-600 transition-colors flex items-center gap-2">
+             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+             </svg> Ver comprobante </button> <button class="px-4 py-2 rounded-lg bg-green-600 text-white text-sm hover:bg-green-500 transition-colors"> ✓ Marcar como pagado </button> <button class="px-4 py-2 rounded-lg bg-red-600 text-white text-sm hover:bg-red-500 transition-colors"> ✕ Rechazar pago </button>
+           </div>
+          </div>
+         </div><!-- Payment Card 2 -->
+         <div class="bg-gradient-to-br from-gray-800/80 to-gray-900/80 rounded-2xl p-6 border border-gray-700/50">
+          <div class="flex flex-col lg:flex-row lg:items-center gap-4">
+           <div class="flex-1">
+            <div class="flex items-center gap-3 mb-2"><span class="px-3 py-1 rounded-full bg-yellow-500/20 text-yellow-400 text-xs font-medium">Pendiente</span> <span class="text-gray-500 text-sm">Hace 5 horas</span>
+            </div>
+            <h3 class="font-display text-xl font-bold mb-1">Juan Carlos Pérez</h3>
+            <p class="text-gray-400 mb-2">Los Reyes del Son • 18 Ene, 21:00</p>
+            <p class="text-2xl font-bold text-yellow-400">$7,500 <span class="text-sm text-gray-400">MXN</span></p>
+           </div>
+           <div class="flex flex-wrap gap-2"><button class="px-4 py-2 rounded-lg bg-gray-700 text-white text-sm hover:bg-gray-600 transition-colors flex items-center gap-2">
+             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+             </svg> Ver comprobante </button> <button class="px-4 py-2 rounded-lg bg-green-600 text-white text-sm hover:bg-green-500 transition-colors"> ✓ Marcar como pagado </button> <button class="px-4 py-2 rounded-lg bg-red-600 text-white text-sm hover:bg-red-500 transition-colors"> ✕ Rechazar pago </button>
+           </div>
+          </div>
+         </div><!-- Payment Card 3 -->
+         <div class="bg-gradient-to-br from-gray-800/80 to-gray-900/80 rounded-2xl p-6 border border-gray-700/50">
+          <div class="flex flex-col lg:flex-row lg:items-center gap-4">
+           <div class="flex-1">
+            <div class="flex items-center gap-3 mb-2"><span class="px-3 py-1 rounded-full bg-yellow-500/20 text-yellow-400 text-xs font-medium">Pendiente</span> <span class="text-gray-500 text-sm">Hace 8 horas</span>
+            </div>
+            <h3 class="font-display text-xl font-bold mb-1">Ana Sofía Martínez</h3>
+            <p class="text-gray-400 mb-2">Retreta Municipal • 20 Ene, 19:00</p>
+            <p class="text-2xl font-bold text-yellow-400">$2,500 <span class="text-sm text-gray-400">MXN</span></p>
+           </div>
+           <div class="flex flex-wrap gap-2"><button class="px-4 py-2 rounded-lg bg-gray-700 text-white text-sm hover:bg-gray-600 transition-colors flex items-center gap-2">
+             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+             </svg> Ver comprobante </button> <button class="px-4 py-2 rounded-lg bg-green-600 text-white text-sm hover:bg-green-500 transition-colors"> ✓ Marcar como pagado </button> <button class="px-4 py-2 rounded-lg bg-red-600 text-white text-sm hover:bg-red-500 transition-colors"> ✕ Rechazar pago </button>
+           </div>
+          </div>
+         </div>
+        </div>
+       </div><!-- Screen 10: Admin Daily Agenda -->
+       <div id="admin-agenda" class="animate-fade hidden">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+         <div>
+          <h2 class="font-display text-3xl font-bold mb-2">Agenda Diaria</h2>
+          <p class="text-gray-400">Eventos programados para hoy - 15 de Enero, 2025</p>
+         </div>
+         <div class="flex items-center gap-2"><button class="p-2 rounded-lg bg-gray-700 hover:bg-gray-600 transition-colors">
+           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+           </svg></button> <span class="px-4 py-2 rounded-lg bg-gray-800 font-medium">Hoy</span> <button class="p-2 rounded-lg bg-gray-700 hover:bg-gray-600 transition-colors">
+           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+           </svg></button>
+         </div>
+        </div>
+        <div class="space-y-4"><!-- Event 1 -->
+         <div class="bg-gradient-to-br from-gray-800/80 to-gray-900/80 rounded-2xl overflow-hidden border border-gray-700/50">
+          <div class="flex">
+           <div class="w-24 flex-shrink-0 bg-gradient-to-b from-red-900/50 to-red-800/30 flex flex-col items-center justify-center p-4 border-r border-gray-700"><span class="text-2xl font-bold">18:00</span> <span class="text-xs text-gray-400">2 hrs</span>
+           </div>
+           <div class="flex-1 p-4">
+            <div class="flex items-start justify-between gap-4">
+             <div>
+              <div class="flex items-center gap-2 mb-1"><span class="px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 text-xs">Confirmado</span>
+              </div>
+              <h3 class="font-display text-lg font-bold">Serenata para Ana García</h3>
+              <p class="text-gray-400 text-sm mb-2">Mariachi Sol de México</p>
+              <p class="text-gray-500 text-sm flex items-center gap-1">
+               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+               </svg> Col. Roma Norte, CDMX</p>
+             </div><button class="px-4 py-2 rounded-lg bg-gray-700 text-sm hover:bg-gray-600 transition-colors">Ver detalles</button>
+            </div>
+           </div>
+          </div>
+         </div><!-- Event 2 -->
+         <div class="bg-gradient-to-br from-gray-800/80 to-gray-900/80 rounded-2xl overflow-hidden border border-gray-700/50">
+          <div class="flex">
+           <div class="w-24 flex-shrink-0 bg-gradient-to-b from-blue-900/50 to-blue-800/30 flex flex-col items-center justify-center p-4 border-r border-gray-700"><span class="text-2xl font-bold">19:30</span> <span class="text-xs text-gray-400">1 hr</span>
+           </div>
+           <div class="flex-1 p-4">
+            <div class="flex items-start justify-between gap-4">
+             <div>
+              <div class="flex items-center gap-2 mb-1"><span class="px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 text-xs">Confirmado</span>
+              </div>
+              <h3 class="font-display text-lg font-bold">Cumpleaños de Roberto</h3>
+              <p class="text-gray-400 text-sm mb-2">Retreta Municipal</p>
+              <p class="text-gray-500 text-sm flex items-center gap-1">
+               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+               </svg> Jardines del Bosque, GDL</p>
+             </div><button class="px-4 py-2 rounded-lg bg-gray-700 text-sm hover:bg-gray-600 transition-colors">Ver detalles</button>
+            </div>
+           </div>
+          </div>
+         </div><!-- Event 3 -->
+         <div class="bg-gradient-to-br from-gray-800/80 to-gray-900/80 rounded-2xl overflow-hidden border border-gray-700/50">
+          <div class="flex">
+           <div class="w-24 flex-shrink-0 bg-gradient-to-b from-purple-900/50 to-purple-800/30 flex flex-col items-center justify-center p-4 border-r border-gray-700"><span class="text-2xl font-bold">21:00</span> <span class="text-xs text-gray-400">2 hrs</span>
+           </div>
+           <div class="flex-1 p-4">
+            <div class="flex items-start justify-between gap-4">
+             <div>
+              <div class="flex items-center gap-2 mb-1"><span class="px-2 py-0.5 rounded-full bg-yellow-500/20 text-yellow-400 text-xs">Pendiente pago</span>
+              </div>
+              <h3 class="font-display text-lg font-bold">Aniversario Sra. López</h3>
+              <p class="text-gray-400 text-sm mb-2">Los Reyes del Son</p>
+              <p class="text-gray-500 text-sm flex items-center gap-1">
+               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+               </svg> San Pedro Garza García, MTY</p>
+             </div><button class="px-4 py-2 rounded-lg bg-gray-700 text-sm hover:bg-gray-600 transition-colors">Ver detalles</button>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div><!-- ==================== GROUP SCREENS ==================== --> <!-- Group Layout Wrapper -->
+    <div id="group-layout" class="hidden">
+     <div class="max-w-4xl mx-auto"><!-- Screen 11: Group Profile -->
+      <div id="group-profile" class="animate-fade">
+       <div class="bg-gradient-to-br from-gray-800/80 to-gray-900/80 rounded-2xl overflow-hidden border border-gray-700/50 mb-6"><!-- Cover Image -->
+        <div class="h-48 bg-gradient-to-br from-red-900/50 via-red-800/30 to-yellow-900/30 relative">
+         <div class="absolute inset-0 flex items-center justify-center opacity-20">
+          <svg class="w-32 h-32 text-yellow-500" fill="currentColor" viewbox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
+          </svg>
+         </div><button class="absolute top-4 right-4 px-4 py-2 rounded-lg bg-black/50 backdrop-blur text-white text-sm hover:bg-black/70 transition-colors"> Cambiar portada </button>
+        </div><!-- Profile Info -->
+        <div class="px-6 pb-6">
+         <div class="flex flex-col sm:flex-row sm:items-end gap-4 -mt-12 mb-6">
+          <div class="w-24 h-24 rounded-2xl bg-gradient-to-br from-red-600 to-red-700 border-4 border-gray-900 flex items-center justify-center"><span class="text-4xl">🎺</span>
+          </div>
+          <div class="flex-1">
+           <h2 class="font-display text-2xl font-bold">Mariachi Sol de México</h2>
+           <p class="text-gray-400">Ciudad de México • ⭐ 4.9 (156 reseñas)</p>
+          </div><button onclick="showGroupScreen('group-edit')" class="px-6 py-3 rounded-xl gold-gradient text-black font-semibold hover:opacity-90 transition-opacity"> Editar perfil </button>
+         </div><!-- Stats -->
+         <div class="grid grid-cols-3 gap-4 mb-6">
+          <div class="text-center p-4 rounded-xl bg-gray-900/50">
+           <p class="text-2xl font-bold">8</p>
+           <p class="text-gray-400 text-sm">Integrantes</p>
+          </div>
+          <div class="text-center p-4 rounded-xl bg-gray-900/50">
+           <p class="text-2xl font-bold">256</p>
+           <p class="text-gray-400 text-sm">Eventos</p>
+          </div>
+          <div class="text-center p-4 rounded-xl bg-gray-900/50">
+           <p class="text-2xl font-bold">45</p>
+           <p class="text-gray-400 text-sm">Canciones</p>
+          </div>
+         </div><!-- Members -->
+         <div class="mb-6">
+          <h3 class="font-display text-lg font-bold mb-3">Integrantes</h3>
+          <div class="flex flex-wrap gap-3">
+           <div class="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-900/50">
+            <div class="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-sm">
+             JR
+            </div><span class="text-sm">José Ramírez - Director</span>
+           </div>
+           <div class="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-900/50">
+            <div class="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-sm">
+             ML
+            </div><span class="text-sm">Miguel López - Trompeta</span>
+           </div>
+           <div class="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-900/50">
+            <div class="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-sm">
+             AG
+            </div><span class="text-sm">Antonio García - Violín</span>
+           </div>
+           <div class="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-900/50">
+            <div class="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-sm">
+             +5
+            </div><span class="text-sm">Ver todos</span>
+           </div>
+          </div>
+         </div><!-- Availability -->
+         <div>
+          <h3 class="font-display text-lg font-bold mb-3">Disponibilidad</h3>
+          <div class="flex flex-wrap gap-2"><span class="px-3 py-1 rounded-full bg-green-500/20 text-green-400 text-sm">Lun - Disponible</span> <span class="px-3 py-1 rounded-full bg-green-500/20 text-green-400 text-sm">Mar - Disponible</span> <span class="px-3 py-1 rounded-full bg-red-500/20 text-red-400 text-sm">Mié - Ocupado</span> <span class="px-3 py-1 rounded-full bg-green-500/20 text-green-400 text-sm">Jue - Disponible</span> <span class="px-3 py-1 rounded-full bg-green-500/20 text-green-400 text-sm">Vie - Disponible</span> <span class="px-3 py-1 rounded-full bg-yellow-500/20 text-yellow-400 text-sm">Sáb - Parcial</span> <span class="px-3 py-1 rounded-full bg-green-500/20 text-green-400 text-sm">Dom - Disponible</span>
+          </div>
+         </div>
+        </div>
+       </div><!-- Repertoire Section -->
+       <div class="bg-gradient-to-br from-gray-800/80 to-gray-900/80 rounded-2xl p-6 border border-gray-700/50">
+        <h3 class="font-display text-lg font-bold mb-4">Repertorio Popular</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+         <div class="flex items-center gap-3 p-3 rounded-lg bg-gray-900/50"><span class="text-yellow-500">🎵</span> <span>Cielito Lindo</span>
+         </div>
+         <div class="flex items-center gap-3 p-3 rounded-lg bg-gray-900/50"><span class="text-yellow-500">🎵</span> <span>El Son de la Negra</span>
+         </div>
+         <div class="flex items-center gap-3 p-3 rounded-lg bg-gray-900/50"><span class="text-yellow-500">🎵</span> <span>México Lindo y Querido</span>
+         </div>
+         <div class="flex items-center gap-3 p-3 rounded-lg bg-gray-900/50"><span class="text-yellow-500">🎵</span> <span>Las Mañanitas</span>
+         </div>
+        </div>
+       </div>
+      </div><!-- Screen 12: Group Agenda -->
+      <div id="group-agenda" class="animate-fade hidden">
+       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+        <div>
+         <h2 class="font-display text-3xl font-bold mb-2">Mi Agenda</h2>
+         <p class="text-gray-400">Eventos confirmados para tu grupo</p>
+        </div><button onclick="showGroupScreen('group-profile')" class="px-4 py-2 rounded-lg bg-gray-700 text-white hover:bg-gray-600 transition-colors"> Ver perfil </button>
+       </div>
+       <div class="space-y-4"><!-- Event 1 -->
+        <div class="bg-gradient-to-br from-gray-800/80 to-gray-900/80 rounded-2xl p-6 border border-gray-700/50">
+         <div class="flex flex-col lg:flex-row lg:items-start gap-4">
+          <div class="lg:w-32 text-center lg:text-left">
+           <p class="text-yellow-400 font-medium">15 Enero</p>
+           <p class="text-3xl font-bold">18:00</p>
+           <p class="text-gray-400 text-sm">2 horas</p>
+          </div>
+          <div class="flex-1 lg:border-l lg:border-gray-700 lg:pl-6"><span class="inline-block px-3 py-1 rounded-full bg-green-500/20 text-green-400 text-xs mb-2">Confirmado</span>
+           <h3 class="font-display text-xl font-bold mb-2">Serenata para Ana García</h3>
+           <p class="text-gray-400 mb-4 flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg> Col. Roma Norte, Calle Orizaba 123, CDMX</p>
+           <div>
+            <p class="text-sm text-gray-400 mb-2">Canciones seleccionadas:</p>
+            <div class="flex flex-wrap gap-2"><span class="px-3 py-1 rounded-full bg-gray-700 text-sm">Las Mañanitas</span> <span class="px-3 py-1 rounded-full bg-gray-700 text-sm">Cielito Lindo</span> <span class="px-3 py-1 rounded-full bg-gray-700 text-sm">El Rey</span> <span class="px-3 py-1 rounded-full bg-gray-700 text-sm">+7 más</span>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div><!-- Event 2 -->
+        <div class="bg-gradient-to-br from-gray-800/80 to-gray-900/80 rounded-2xl p-6 border border-gray-700/50">
+         <div class="flex flex-col lg:flex-row lg:items-start gap-4">
+          <div class="lg:w-32 text-center lg:text-left">
+           <p class="text-yellow-400 font-medium">18 Enero</p>
+           <p class="text-3xl font-bold">20:00</p>
+           <p class="text-gray-400 text-sm">1 hora</p>
+          </div>
+          <div class="flex-1 lg:border-l lg:border-gray-700 lg:pl-6"><span class="inline-block px-3 py-1 rounded-full bg-green-500/20 text-green-400 text-xs mb-2">Confirmado</span>
+           <h3 class="font-display text-xl font-bold mb-2">Cumpleaños de Roberto Sánchez</h3>
+           <p class="text-gray-400 mb-4 flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg> Col. Del Valle, Av. Insurgentes 456, CDMX</p>
+           <div>
+            <p class="text-sm text-gray-400 mb-2">Canciones seleccionadas:</p>
+            <div class="flex flex-wrap gap-2"><span class="px-3 py-1 rounded-full bg-gray-700 text-sm">Las Mañanitas</span> <span class="px-3 py-1 rounded-full bg-gray-700 text-sm">Amor Eterno</span> <span class="px-3 py-1 rounded-full bg-gray-700 text-sm">+3 más</span>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div><!-- Event 3 -->
+        <div class="bg-gradient-to-br from-gray-800/80 to-gray-900/80 rounded-2xl p-6 border border-gray-700/50">
+         <div class="flex flex-col lg:flex-row lg:items-start gap-4">
+          <div class="lg:w-32 text-center lg:text-left">
+           <p class="text-yellow-400 font-medium">22 Enero</p>
+           <p class="text-3xl font-bold">21:00</p>
+           <p class="text-gray-400 text-sm">2 horas</p>
+          </div>
+          <div class="flex-1 lg:border-l lg:border-gray-700 lg:pl-6"><span class="inline-block px-3 py-1 rounded-full bg-green-500/20 text-green-400 text-xs mb-2">Confirmado</span>
+           <h3 class="font-display text-xl font-bold mb-2">Aniversario Familia Pérez</h3>
+           <p class="text-gray-400 mb-4 flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg> Polanco, Campos Elíseos 789, CDMX</p>
+           <div>
+            <p class="text-sm text-gray-400 mb-2">Canciones seleccionadas:</p>
+            <div class="flex flex-wrap gap-2"><span class="px-3 py-1 rounded-full bg-gray-700 text-sm">Si Nos Dejan</span> <span class="px-3 py-1 rounded-full bg-gray-700 text-sm">Sabor a Mí</span> <span class="px-3 py-1 rounded-full bg-gray-700 text-sm">Bésame Mucho</span> <span class="px-3 py-1 rounded-full bg-gray-700 text-sm">+17 más</span>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+       </div>
+      </div><!-- Group Navigation -->
+      <div class="fixed bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 p-2 rounded-full bg-gray-900/90 backdrop-blur border border-gray-700"><button onclick="showGroupScreen('group-profile')" class="group-nav px-5 py-3 rounded-full bg-gradient-to-r from-red-700 to-red-600 text-white font-medium transition-all" data-screen="group-profile"> Perfil </button> <button onclick="showGroupScreen('group-agenda')" class="group-nav px-5 py-3 rounded-full text-gray-400 hover:text-white font-medium transition-all" data-screen="group-agenda"> Mi Agenda </button>
+      </div>
+     </div>
+    </div>
+   </main><!-- Toast Notification -->
+   <div id="toast" class="fixed bottom-6 right-6 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none z-50">
+    <div class="px-6 py-4 rounded-xl bg-gray-800 border border-gray-700 shadow-lg flex items-center gap-3">
+     <svg class="w-5 h-5 text-green-500" fill="currentColor" viewbox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+     </svg><span id="toast-message">Copiado al portapapeles</span>
+    </div>
+   </div>
+  </div>
+  <script>
+    // Default configuration
+    const defaultConfig = {
+      platform_name: 'MariachiFest',
+      tagline: 'La música de México a tu puerta'
+    };
+
+    // State management
+    let state = {
+      currentScreen: 'screen-groups',
+      userType: 'client',
+      selectedGroup: null,
+      selectedPackage: null,
+      maxSongs: 10,
+      selectedSongs: [],
+      selectedDate: null,
+      selectedTime: null,
+      currentMonth: new Date().getMonth(),
+      currentYear: new Date().getFullYear()
+    };
+
+    // Song catalog
+    const songs = [
+      { id: 1, name: 'Las Mañanitas', category: 'Tradicional' },
+      { id: 2, name: 'Cielito Lindo', category: 'Tradicional' },
+      { id: 3, name: 'El Rey', category: 'José Alfredo' },
+      { id: 4, name: 'México Lindo y Querido', category: 'Tradicional' },
+      { id: 5, name: 'El Son de la Negra', category: 'Jalisco' },
+      { id: 6, name: 'Amor Eterno', category: 'Juan Gabriel' },
+      { id: 7, name: 'Si Nos Dejan', category: 'José Alfredo' },
+      { id: 8, name: 'Bésame Mucho', category: 'Boleros' },
+      { id: 9, name: 'Sabor a Mí', category: 'Boleros' },
+      { id: 10, name: 'Volver Volver', category: 'Vicente Fernández' },
+      { id: 11, name: 'La Bikina', category: 'Tradicional' },
+      { id: 12, name: 'Guadalajara', category: 'Jalisco' },
+      { id: 13, name: 'El Mariachi Loco', category: 'Tradicional' },
+      { id: 14, name: 'Por Tu Maldito Amor', category: 'Vicente Fernández' },
+      { id: 15, name: 'Cucurrucucú Paloma', category: 'Huasteca' }
+    ];
+
+    // Initialize Element SDK
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange: async (config) => {
+          document.getElementById('platform-name').textContent = config.platform_name || defaultConfig.platform_name;
+          document.getElementById('tagline').textContent = config.tagline || defaultConfig.tagline;
+        },
+        mapToCapabilities: (config) => ({
+          recolorables: [],
+          borderables: [],
+          fontEditable: undefined,
+          fontSizeable: undefined
+        }),
+        mapToEditPanelValues: (config) => new Map([
+          ['platform_name', config.platform_name || defaultConfig.platform_name],
+          ['tagline', config.tagline || defaultConfig.tagline]
+        ])
+      });
+    }
+
+    // User type switching
+    function switchUserType(type) {
+      state.userType = type;
+      
+      // Update buttons
+      document.getElementById('btn-client').className = type === 'client' 
+        ? 'px-4 py-2 rounded-full text-sm font-medium transition-all bg-gradient-to-r from-red-700 to-red-600 text-white'
+        : 'px-4 py-2 rounded-full text-sm font-medium transition-all text-gray-400 hover:text-white';
+      document.getElementById('btn-admin').className = type === 'admin'
+        ? 'px-4 py-2 rounded-full text-sm font-medium transition-all bg-gradient-to-r from-red-700 to-red-600 text-white'
+        : 'px-4 py-2 rounded-full text-sm font-medium transition-all text-gray-400 hover:text-white';
+      document.getElementById('btn-group').className = type === 'group'
+        ? 'px-4 py-2 rounded-full text-sm font-medium transition-all bg-gradient-to-r from-red-700 to-red-600 text-white'
+        : 'px-4 py-2 rounded-full text-sm font-medium transition-all text-gray-400 hover:text-white';
+
+      // Hide all layouts
+      document.querySelectorAll('#screen-groups, #screen-packages, #screen-datetime, #screen-songs, #screen-payment, #screen-upload, #screen-success').forEach(el => el.classList.add('hidden'));
+      document.getElementById('admin-layout').classList.add('hidden');
+      document.getElementById('group-layout').classList.add('hidden');
+
+      // Show appropriate layout
+      if (type === 'client') {
+        document.getElementById('screen-groups').classList.remove('hidden');
+      } else if (type === 'admin') {
+        document.getElementById('admin-layout').classList.remove('hidden');
+        showAdminScreen('admin-dashboard');
+      } else if (type === 'group') {
+        document.getElementById('group-layout').classList.remove('hidden');
+        showGroupScreen('group-profile');
+      }
+    }
+
+    // Screen navigation
+    function goToScreen(screenId) {
+      document.querySelectorAll('#screen-groups, #screen-packages, #screen-datetime, #screen-songs, #screen-payment, #screen-upload, #screen-success').forEach(el => el.classList.add('hidden'));
+      document.getElementById(screenId).classList.remove('hidden');
+      state.currentScreen = screenId;
+      window.scrollTo(0, 0);
+    }
+
+    function goBack(screenId) {
+      goToScreen(screenId);
+    }
+
+    // Group selection
+    function selectGroup(groupName) {
+      state.selectedGroup = groupName;
+      document.getElementById('selected-group-name').textContent = groupName;
+      goToScreen('screen-packages');
+    }
+
+    // Package selection
+    function selectPackage(packageType, maxSongs) {
+      state.selectedPackage = packageType;
+      state.maxSongs = maxSongs;
+      document.getElementById('max-songs').textContent = maxSongs;
+      generateCalendar();
+      goToScreen('screen-datetime');
+    }
+
+    // Calendar generation
+    function generateCalendar() {
+      const container = document.getElementById('calendar-days');
+      const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+      
+      document.getElementById('calendar-month').textContent = `${months[state.currentMonth]} ${state.currentYear}`;
+      
+      const firstDay = new Date(state.currentYear, state.currentMonth, 1).getDay();
+      const daysInMonth = new Date(state.currentYear, state.currentMonth + 1, 0).getDate();
+      
+      let html = '';
+      
+      // Empty cells for days before the 1st
+      for (let i = 0; i < firstDay; i++) {
+        html += '<div class="p-2"></div>';
+      }
+      
+      // Days of the month
+      for (let day = 1; day <= daysInMonth; day++) {
+        const isSelected = state.selectedDate === `${state.currentYear}-${state.currentMonth + 1}-${day}`;
+        const isPast = new Date(state.currentYear, state.currentMonth, day) < new Date().setHours(0,0,0,0);
+        
+        html += `<button 
+          onclick="selectDate(${day})" 
+          class="calendar-day p-2 rounded-lg text-center transition-colors ${isSelected ? 'selected' : ''} ${isPast ? 'text-gray-600 cursor-not-allowed' : 'hover:bg-gray-700'}"
+          ${isPast ? 'disabled' : ''}>
+          ${day}
+        </button>`;
+      }
+      
+      container.innerHTML = html;
+    }
+
+    function changeMonth(delta) {
+      state.currentMonth += delta;
+      if (state.currentMonth > 11) {
+        state.currentMonth = 0;
+        state.currentYear++;
+      } else if (state.currentMonth < 0) {
+        state.currentMonth = 11;
+        state.currentYear--;
+      }
+      generateCalendar();
+    }
+
+    function selectDate(day) {
+      state.selectedDate = `${state.currentYear}-${state.currentMonth + 1}-${day}`;
+      generateCalendar();
+      updateDateTimeDisplay();
+    }
+
+    function selectTime(time) {
+      state.selectedTime = time;
+      document.querySelectorAll('.time-btn').forEach(btn => {
+        btn.classList.remove('gold-gradient', 'text-black');
+        btn.classList.add('bg-gray-700', 'text-white');
+      });
+      event.target.classList.remove('bg-gray-700', 'text-white');
+      event.target.classList.add('gold-gradient', 'text-black');
+      updateDateTimeDisplay();
+    }
+
+    function updateDateTimeDisplay() {
+      const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+      if (state.selectedDate && state.selectedTime) {
+        const parts = state.selectedDate.split('-');
+        document.getElementById('selected-datetime').textContent = `${parts[2]} de ${months[parseInt(parts[1]) - 1]}, ${state.currentYear} a las ${state.selectedTime}`;
+      } else if (state.selectedDate) {
+        const parts = state.selectedDate.split('-');
+        document.getElementById('selected-datetime').textContent = `${parts[2]} de ${months[parseInt(parts[1]) - 1]}, ${state.currentYear}`;
+      }
+    }
+
+    // Song list rendering
+    function renderSongList() {
+      const container = document.getElementById('song-list');
+      let html = '';
+      
+      songs.forEach(song => {
+        const isSelected = state.selectedSongs.includes(song.id);
+        const isDisabled = !isSelected && state.selectedSongs.length >= state.maxSongs;
+        
+        html += `
+          <div class="flex items-center gap-4 p-4 hover:bg-gray-800/50 transition-colors ${isDisabled ? 'opacity-50' : ''}">
+            <input 
+              type="checkbox" 
+              id="song-${song.id}" 
+              ${isSelected ? 'checked' : ''} 
+              ${isDisabled ? 'disabled' : ''}
+              onchange="toggleSong(${song.id})"
+              class="w-5 h-5 rounded border-2 border-gray-600 bg-gray-800 checked:bg-yellow-500 checked:border-yellow-500 cursor-pointer"
+            >
+            <label for="song-${song.id}" class="flex-1 cursor-pointer">
+              <p class="font-medium">${song.name}</p>
+              <p class="text-sm text-gray-400">${song.category}</p>
+            </label>
+          </div>
+        `;
+      });
+      
+      container.innerHTML = html;
+      document.getElementById('song-count').textContent = state.selectedSongs.length;
+    }
+
+    function toggleSong(songId) {
+      const index = state.selectedSongs.indexOf(songId);
+      if (index > -1) {
+        state.selectedSongs.splice(index, 1);
+      } else if (state.selectedSongs.length < state.maxSongs) {
+        state.selectedSongs.push(songId);
+      }
+      renderSongList();
+    }
+
+    // File upload handling
+    function handleFileUpload(event) {
+      const file = event.target.files[0];
+      if (file) {
+        document.getElementById('upload-placeholder').classList.add('hidden');
+        document.getElementById('upload-preview').classList.remove('hidden');
+        document.getElementById('file-name').textContent = file.name;
+      }
+    }
+
+    // Submit reservation
+    function submitReservation() {
+      document.getElementById('summary-group').textContent = state.selectedGroup;
+      const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+      if (state.selectedDate) {
+        const parts = state.selectedDate.split('-');
+        document.getElementById('summary-date').textContent = `${parts[2]} de ${months[parseInt(parts[1]) - 1]}, ${state.currentYear}`;
+      }
+      document.getElementById('summary-time').textContent = state.selectedTime || '20:00';
+      goToScreen('screen-success');
+    }
+
+    // Reset booking
+    function resetBooking() {
+      state.selectedGroup = null;
+      state.selectedPackage = null;
+      state.selectedSongs = [];
+      state.selectedDate = null;
+      state.selectedTime = null;
+      goToScreen('screen-groups');
+    }
+
+    // Admin screen navigation
+    function showAdminScreen(screenId) {
+      document.querySelectorAll('#admin-dashboard, #admin-groups, #admin-payments, #admin-agenda').forEach(el => el.classList.add('hidden'));
+      document.getElementById(screenId).classList.remove('hidden');
+      
+      document.querySelectorAll('.nav-item').forEach(btn => {
+        btn.classList.remove('active');
+        const icon = btn.querySelector('svg');
+        if (icon) icon.classList.remove('text-yellow-500');
+        if (icon) icon.classList.add('text-gray-400');
+      });
+      
+      const activeBtn = document.querySelector(`[data-nav="${screenId}"]`);
+      if (activeBtn) {
+        activeBtn.classList.add('active');
+        const icon = activeBtn.querySelector('svg');
+        if (icon) icon.classList.remove('text-gray-400');
+        if (icon) icon.classList.add('text-yellow-500');
+      }
+    }
+
+    // Group screen navigation
+    function showGroupScreen(screenId) {
+      document.querySelectorAll('#group-profile, #group-agenda').forEach(el => el.classList.add('hidden'));
+      document.getElementById(screenId).classList.remove('hidden');
+      
+      document.querySelectorAll('.group-nav').forEach(btn => {
+        if (btn.dataset.screen === screenId) {
+          btn.classList.add('bg-gradient-to-r', 'from-red-700', 'to-red-600', 'text-white');
+          btn.classList.remove('text-gray-400');
+        } else {
+          btn.classList.remove('bg-gradient-to-r', 'from-red-700', 'to-red-600', 'text-white');
+          btn.classList.add('text-gray-400');
+        }
+      });
+    }
+
+    // Toast notification
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-message').textContent = message;
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+      
+      setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+        toast.classList.remove('translate-y-0', 'opacity-100');
+      }, 3000);
+    }
+
+    // Copy to clipboard
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('Copiado al portapapeles');
+      });
+    }
+
+    // Initialize on load
+    document.addEventListener('DOMContentLoaded', () => {
+      generateCalendar();
+      renderSongList();
+    });
+
+    // Initialize when songs screen is shown
+    const originalGoToScreen = goToScreen;
+    goToScreen = function(screenId) {
+      originalGoToScreen(screenId);
+      if (screenId === 'screen-songs') {
+        renderSongList();
+      }
+    };
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9cb61bff70014f7e',t:'MTc3MDY2ODg2Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
